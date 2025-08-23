@@ -1,0 +1,16 @@
+# miloGPT Requirements
+# Minimal dependencies for training GPT models
+
+# PyTorch with CUDA support
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# Core dependencies
+numpy
+transformers
+datasets
+tiktoken
+wandb
+tqdm
