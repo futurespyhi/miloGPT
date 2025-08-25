@@ -1,1 +1,7 @@
+__pycache__/
+log/
+
 papers
+edu_fineweb10B/
+edu_fineweb10B.tar.gz
+train_gpt2_contrast.py
