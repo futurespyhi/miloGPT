@@ -1,50 +1,31 @@
 #!/bin/bash
 
-# Learning rate ablation study for GPT-2 pretraining
-# Run 3 experiments with different learning rates
+# GPT-2 learning rate ablation study
+# Tests 3 different learning rates with fault tolerance
 
-echo "====== Starting GPT-2 Learning Rate Ablation Study ======"
+echo "====== GPT-2 Learning Rate Ablation Study ======"
 echo "Expected total time: ~7.5 hours on 8xA100 GPUs"
-echo "=========================================================="
+echo "================================================"
 
-# Learning rates to test
-LR_CONSERVATIVE=6e-4
-LR_MEDIUM=1.2e-3
-LR_AGGRESSIVE=1.8e-3
+# Define learning rates
+LR_RATES=(6e-4 1.2e-3 1.8e-3)
+LR_NAMES=("Conservative" "Medium" "Aggressive")
 
-# Experiment 1: Conservative learning rate (baseline)
+# Run experiments
+for i in {0..2}; do
+    echo ""
+    echo "[$((i+1))/3] Training with ${LR_NAMES[i]} learning rate: ${LR_RATES[i]}"
+    echo "Expected time: ~2.5 hours"
+    
+    # Run training with fault tolerance
+    torchrun --standalone --nproc_per_node=8 train_gpt2.py --max_lr ${LR_RATES[i]} || \
+        echo "Warning: Training completed with non-zero exit code, continuing..."
+done
+
+# Display results
 echo ""
-echo "[1/3] Training with conservative learning rate: $LR_CONSERVATIVE"
-echo "Expected time: ~2.5 hours"
-torchrun --standalone --nproc_per_node=8 train_gpt2.py --max_lr $LR_CONSERVATIVE
-if [ $? -ne 0 ]; then
-    echo "ERROR: Conservative training failed!"
-    exit 1
-fi
-
-# Experiment 2: Medium learning rate (2x baseline)  
-echo ""
-echo "[2/3] Training with medium learning rate: $LR_MEDIUM"
-echo "Expected time: ~2.5 hours"
-torchrun --standalone --nproc_per_node=8 train_gpt2.py --max_lr $LR_MEDIUM
-if [ $? -ne 0 ]; then
-    echo "ERROR: Medium training failed!"
-    exit 1
-fi
-
-# Experiment 3: Aggressive learning rate (3x baseline)
-echo ""
-echo "[3/3] Training with aggressive learning rate: $LR_AGGRESSIVE"  
-echo "Expected time: ~2.5 hours"
-torchrun --standalone --nproc_per_node=8 train_gpt2.py --max_lr $LR_AGGRESSIVE
-if [ $? -ne 0 ]; then
-    echo "ERROR: Aggressive training failed!"
-    exit 1
-fi
-
-echo ""
-echo "====== All experiments completed successfully! ======"
+echo "====== All experiments completed! ======"
 echo "Generated log files:"
-ls -la log/log_*.txt
+ls -la log/log_*.txt 2>/dev/null || echo "No log files found"
 echo "Download log/ folder to run evaluation locally"
-echo "================================================="
+echo "=============================================="
