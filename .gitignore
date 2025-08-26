@@ -3,8 +3,9 @@ log*/
 
 papers
 edu_fineweb10B/
-results_backup/
 results_copied/
+results_backup/scripts
+
 
 # tar.gz
 *.tar.gz
